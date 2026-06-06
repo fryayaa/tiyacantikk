@@ -59,24 +59,25 @@ wishboxForm.addEventListener('submit', async (event) => {
     const name = nameInput.value.trim();
     const message = messageInput.value.trim();
 
-    if (!name || !message) {
-        alert('Nama dan ucapan tidak boleh kosong!');
-        return;
-    }
+    console.log("Submit diklik");
+    console.log("Nama:", name);
+    console.log("Pesan:", message);
 
     const { data, error } = await supabase
         .from('wishbox_entries')
         .insert([{ name, message }])
         .select();
 
+    console.log("DATA:", data);
+    console.log("ERROR:", error);
+
     if (error) {
-        console.error('Error submitting entry:', error.message);
-        alert('Gagal mengirim ucapan. Silakan coba lagi.');
+        alert(error.message);
         return;
     }
 
-    nameInput.value = '';
-    messageInput.value = '';
+    alert("Berhasil masuk database!");
+});
 });
     // Data yang baru di-insert akan otomatis ditambahkan oleh listener real-time,
     // jadi kita tidak perlu memanggil displayEntry secara manual di sini.
