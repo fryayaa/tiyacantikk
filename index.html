@@ -96,15 +96,20 @@
             }
         }
 
+        // PERBAIKAN: Penutupan fungsi submit form yang benar
         wishboxForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const name = nameInput.value.trim();
             const message = messageInput.value.trim();
+            const submitBtn = document.getElementById('submit-btn');
 
             if (!name || !message) {
                 alert('Nama dan ucapan tidak boleh kosong!');
                 return;
             }
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Mengirim...';
 
             const { error } = await supabase
                 .from('wishbox_entries')
@@ -113,12 +118,16 @@
             if (error) {
                 console.error('Error submitting entry:', error.message);
                 alert('Gagal mengirim ucapan. Silakan coba lagi.');
-                return;
+            } else {
+                nameInput.value = '';
+                messageInput.value = '';
+                // Panggil manual buat mastiin datanya langsung kepajang seketika
+                await loadEntries();
             }
 
-            nameInput.value = '';
-            messageInput.value = '';
-        }                         );
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Kirim Ucapan';
+        });
 
         function setupRealtime() {
             supabase
