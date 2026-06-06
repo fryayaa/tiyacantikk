@@ -3,30 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buku Tamu Digital</title>
+    <title>Dashboard Kumpulan Wishes</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; text-align: center; }
-        .container { max-width: 500px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h1 { color: #333; margin-bottom: 25px; font-size: 24px; }
-        form { display: flex; flex-direction: column; gap: 12px; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
-        textarea { height: 100px; resize: vertical; }
-        button { background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        /* Style Dashboard biar Aesthetic */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: 30px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h1 { text-align: center; font-size: 26px; color: #111; margin-bottom: 25px; }
+        
+        /* Desain Form Input */
+        form { display: flex; flex-direction: column; gap: 14px; }
+        input, textarea { width: 100%; padding: 14px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; box-sizing: border-box; background-color: #fafafa; transition: all 0.3s; }
+        input:focus, textarea:focus { border-color: #007bff; background-color: #fff; outline: none; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
+        textarea { height: 110px; resize: vertical; }
+        button { background-color: #007bff; color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
         button:hover { background-color: #0056b3; }
         button:disabled { background-color: #cccccc; cursor: not-allowed; }
-        hr { border: 0; height: 1px; background: #eee; margin: 30px 0; }
-        h2 { color: #444; font-size: 18px; margin-bottom: 15px; text-align: left; }
         
-        .entry { background: #ffffff; padding: 15px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #eaeaea; box-shadow: 0 2px 4px rgba(0,0,0,0.02); text-align: left; }
-        .entry-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; }
-        .entry-name { font-weight: bold; color: #007bff; }
-        .entry-date { color: #999; font-size: 12px; }
-        .entry-message { color: #555; font-size: 14px; margin: 0; line-height: 1.4; }
+        hr { border: 0; height: 1px; background: #eaeaea; margin: 35px 0; }
+        h2 { font-size: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* CONTAINER EMAS: Tempat Kumpulan Ucapan Kepajang */
+        #wishbox-entries { display: flex; flex-direction: column; gap: 15px; }
+        
+        /* Style Card Ucapan di Dashboard */
+        .entry { background: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 4px 6px rgba(0,0,0,0.01); text-align: left; transition: transform 0.2s; }
+        .entry:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.03); }
+        .entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px dashed #f0f0f0; padding-bottom: 6px; }
+        .entry-name { font-weight: 700; color: #007bff; font-size: 15px; }
+        .entry-date { color: #aaa; font-size: 11px; }
+        .entry-message { color: #444; font-size: 14px; margin: 0; line-height: 1.5; word-break: break-word; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Buku Tamu Digital</h1>
+        <h1>Buku Tamu & Dashboard Wishes ✨</h1>
 
         <form id="wishbox-form">
             <input type="text" id="name" placeholder="Nama Anda" required>
@@ -36,9 +46,10 @@
 
         <hr>
 
-        <h2>Ucapan Terbaru</h2>
+        <h2>Kumpulan Wishes Orang-Orang 💬</h2>
+        
         <div id="wishbox-entries">
-            <p id="status-text">Memuat ucapan...</p>
+            <p style="text-align: center; color: #888;">Memuat dashboard ucapan...</p>
         </div>
     </div>
 
@@ -55,58 +66,63 @@
         const messageInput = document.getElementById('message');
         const entriesContainer = document.getElementById('wishbox-entries');
 
-        // FUNGSI TAMPILIN UCAPAN KE LAYAR
+        // 1. CARA KODE MAJANG UCAPAN KE LAYAR
         function displayEntry(entry) {
             const entryDiv = document.createElement('div');
             entryDiv.classList.add('entry');
 
+            // Set format jam & tanggal Indonesia
             const dateObj = entry.created_at ? new Date(entry.created_at) : new Date();
             const createdAt = dateObj.toLocaleString('id-ID', {
                 dateStyle: 'medium',
                 timeStyle: 'short'
             });
 
+            // Susun struktur kartu ucapan HTML
             entryDiv.innerHTML = `
                 <div class="entry-header">
-                    <span class="entry-name">${escapeHTML(entry.name)}</span>
-                    <span class="entry-date">${createdAt}</span>
+                    <span class="entry-name">👤 ${escapeHTML(entry.name)}</span>
+                    <span class="entry-date">📅 ${createdAt}</span>
                 </div>
                 <p class="entry-message">${escapeHTML(entry.message)}</p>
             `;
             
+            // .prepend artinya memasukkan ucapan terbaru di paling atas list dashboard
             entriesContainer.prepend(entryDiv);
         }
 
-        // FUNGSI AMBIL SEMUA DATA PAS WEB DIBUKA
+        // 2. CARA KODE MENARIK SEMUA DATA BIAR KEPAJANG PAS WEB DIBUKA
         async function loadEntries() {
             try {
+                // Ambil semua baris dari tabel wishbox_entries, urutkan dari yang paling lama ke baru (nanti dibalik pas di-prepend)
                 const { data, error } = await supabase
                     .from('wishbox_entries')
                     .select('*')
-                    .order('created_at', { ascending: true }); // Biar pas di-prepend urutannya pas yang terbaru di atas
+                    .order('created_at', { ascending: true });
 
                 if (error) {
                     console.error(error);
-                    entriesContainer.innerHTML = '<p style="color: red;">Gagal memuat ucapan dari database.</p>';
+                    entriesContainer.innerHTML = '<p style="color: red; text-align: center;">Gagal memuat kumpulan ucapan.</p>';
                     return;
                 }
 
-                entriesContainer.innerHTML = ''; 
+                entriesContainer.innerHTML = ''; // Bersihkan tulisan "Memuat dashboard..."
                 
                 if (!data || data.length === 0) {
-                    entriesContainer.innerHTML = '<p id="no-entry-text">Belum ada ucapan. Jadilah yang pertama!</p>';
+                    entriesContainer.innerHTML = '<p id="no-entry-text" style="text-align: center; color: #999;">Belum ada ucapan di dashboard. Jadilah yang pertama!</p>';
                     return;
                 }
 
+                // Masukkan satu-persatu data dari database ke dalam dashboard HTML
                 data.forEach(displayEntry);
 
             } catch (err) {
                 console.error(err);
-                entriesContainer.innerHTML = '<p style="color: red;">Terjadi kesalahan sistem.</p>';
+                entriesContainer.innerHTML = '<p style="color: red; text-align: center;">Terjadi kesalahan sistem.</p>';
             }
         }
 
-        // FUNGSI SUBMIT FORM (UDAH DIKASIH SELECT RESMI!)
+        // 3. LOGIKA PAS TOMBOL "KIRIM" DIKLIK
         wishboxForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const name = nameInput.value.trim();
@@ -116,42 +132,6 @@
             if (!name || !message) return;
 
             submitBtn.disabled = true;
-            submitBtn.innerText = 'Mengirim...';
+            submitBtn.innerText = 'Mengirim ke Dashboard...';
 
-            // KUNCI UTAMA: Ditambahin .select() biar Supabase balikin datanya!
-            const { data, error } = await supabase
-                .from('wishbox_entries')
-                .insert([{ name, message }])
-                .select(); 
-
-            if (error) {
-                console.error('Gagal insert:', error.message);
-                alert('Gagal mengirim ucapan, coba lagi.');
-            } else {
-                // Form langsung dibersihkan
-                nameInput.value = '';
-                messageInput.value = '';
-                
-                // Hapus tulisan placeholder kalau ada
-                const placeholder = document.getElementById('no-entry-text');
-                if (placeholder) placeholder.remove();
-                
-                // Pajang datanya ke UI secara instan dari hasil kembalian database
-                if (data && data.length > 0) {
-                    displayEntry(data[0]);
-                }
-            }
-
-            submitBtn.disabled = false;
-            submitBtn.innerText = 'Kirim Ucapan';
-        });
-
-        function escapeHTML(str) {
-            if (!str) return '';
-            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
-        }
-
-        document.addEventListener('DOMContentLoaded', loadEntries);
-    </script>
-</body>
-</html>
+            //
