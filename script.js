@@ -1,6 +1,6 @@
 // Ganti dengan Project URL dan Anon Public Key dari proyek Supabase Anda
-const SUPABASE_URL = 'https://gcmhpaopnhnaekvlaxpr.supabase.co/rest/v1/';
-const SUPABASE_ANON_KEY = 'gcmhpaopnhnaekvlaxpr';
+const SUPABASE_URL = 'https://gcmhpaopnhnaekvlaxpr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
