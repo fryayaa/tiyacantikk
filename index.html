@@ -3,53 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Kumpulan Wishes</title>
+    <title>Send The Song - Clone Version</title>
     <style>
-        /* Style Dashboard biar Aesthetic */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 600px; margin: 30px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        h1 { text-align: center; font-size: 26px; color: #111; margin-bottom: 25px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0f0c20, #15102a); margin: 0; padding: 20px; color: #fff; min-height: 100vh; }
+        .container { max-width: 600px; margin: 30px auto; background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        h1 { text-align: center; font-size: 28px; color: #1DB954; margin-bottom: 5px; font-weight: 800; }
+        .subtitle { text-align: center; color: #aaa; font-size: 14px; margin-bottom: 30px; }
         
-        /* Desain Form Input */
-        form { display: flex; flex-direction: column; gap: 14px; }
-        input, textarea { width: 100%; padding: 14px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; box-sizing: border-box; background-color: #fafafa; transition: all 0.3s; }
-        input:focus, textarea:focus { border-color: #007bff; background-color: #fff; outline: none; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
-        textarea { height: 110px; resize: vertical; }
-        button { background-color: #007bff; color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        button:hover { background-color: #0056b3; }
-        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        form { display: flex; flex-direction: column; gap: 15px; }
+        input, textarea { width: 100%; padding: 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 14px; box-sizing: border-box; background: rgba(0, 0, 0, 0.3); color: #fff; transition: all 0.3s; }
+        input:focus, textarea:focus { border-color: #1DB954; outline: none; background: rgba(0, 0, 0, 0.5); }
+        textarea { height: 100px; resize: vertical; }
         
-        hr { border: 0; height: 1px; background: #eaeaea; margin: 35px 0; }
-        h2 { font-size: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        button { background-color: #1DB954; color: #000; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        button:hover { background-color: #1ed760; transform: scale(1.02); }
+        button:disabled { background-color: #555; color: #aaa; cursor: not-allowed; }
         
-        /* CONTAINER EMAS: Tempat Kumpulan Ucapan Kepajang */
-        #wishbox-entries { display: flex; flex-direction: column; gap: 15px; }
+        hr { border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 35px 0; }
+        h2 { font-size: 20px; margin-bottom: 20px; color: #1DB954; text-align: left; }
         
-        /* Style Card Ucapan di Dashboard */
-        .entry { background: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 4px 6px rgba(0,0,0,0.01); text-align: left; transition: transform 0.2s; }
-        .entry:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.03); }
-        .entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px dashed #f0f0f0; padding-bottom: 6px; }
-        .entry-name { font-weight: 700; color: #007bff; font-size: 15px; }
-        .entry-date { color: #aaa; font-size: 11px; }
-        .entry-message { color: #444; font-size: 14px; margin: 0; line-height: 1.5; word-break: break-word; }
+        #wishbox-entries { display: flex; flex-direction: column; gap: 20px; }
+        
+        /* Card Tampilan ala SendTheSong */
+        .entry { background: rgba(255, 255, 255, 0.08); padding: 20px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05); text-align: left; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .entry-name { font-weight: 700; color: #1DB954; font-size: 16px; }
+        .entry-date { color: #888; font-size: 11px; }
+        .entry-message { color: #ddd; font-size: 14px; margin: 0 0 15px 0; line-height: 1.5; word-break: break-word; font-style: italic; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 8px; border-left: 3px solid #1DB954; }
+        
+        /* Player Spotify Embed */
+        .spotify-player { margin-top: 10px; border-radius: 12px; overflow: hidden; background: transparent; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Buku Tamu & Dashboard Wishes ✨</h1>
+        <h1>SEND THE SONG 🎵</h1>
+        <div class="subtitle">Kirim pesan rahasia beserta lagu favoritmu untuk seseorang</div>
 
         <form id="wishbox-form">
-            <input type="text" id="name" placeholder="Nama Anda" required>
-            <textarea id="message" placeholder="Tulis harapan atau ucapan Anda di sini..." required></textarea>
-            <button type="submit" id="submit-btn">Kirim Ucapan</button>
+            <input type="text" id="name" placeholder="Untuk Siapa? (Contoh: Tiya, Adhit, Naufal)" required>
+            <textarea id="message" placeholder="Tulis pesan atau harapan rahasiamu di sini..." required></textarea>
+            <input type="text" id="song-url" placeholder="Masukkan Link Lagu Spotify (Contoh: https://open.spotify.com/track/...)" required>
+            <button type="submit" id="submit-btn">Kirim Pesan & Lagu</button>
         </form>
 
         <hr>
 
-        <h2>Kumpulan Wishes Orang-Orang 💬</h2>
-        
+        <h2>Kumpulan Lagu & Pesan Terpajang 🎧</h2>
         <div id="wishbox-entries">
-            <p style="text-align: center; color: #888;">Memuat dashboard ucapan...</p>
+            <p style="text-align: center; color: #aaa;">Memuat dashboard lagu...</p>
         </div>
     </div>
 
@@ -64,74 +66,105 @@
         const wishboxForm = document.getElementById('wishbox-form');
         const nameInput = document.getElementById('name');
         const messageInput = document.getElementById('message');
+        const songInput = document.getElementById('song-url');
         const entriesContainer = document.getElementById('wishbox-entries');
 
-        // 1. CARA KODE MAJANG UCAPAN KE LAYAR
+        // Mengubah link biasa Spotify menjadi format embed player resmi
+        function getSpotifyEmbed(url) {
+            if (!url) return '';
+            const match = url.match(/track\/([a-zA-Z0-9]+)/);
+            if (match && match[1]) {
+                return `<div class="spotify-player"><iframe src="https://open.spotify.com/embed/track/${match[1]}?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>`;
+            }
+            return `<p style="font-size:12px; color:#ff6b6b;">Link Spotify tidak valid</p>`;
+        }
+
         function displayEntry(entry) {
             const entryDiv = document.createElement('div');
             entryDiv.classList.add('entry');
 
-            // Set format jam & tanggal Indonesia
             const dateObj = entry.created_at ? new Date(entry.created_at) : new Date();
-            const createdAt = dateObj.toLocaleString('id-ID', {
-                dateStyle: 'medium',
-                timeStyle: 'short'
-            });
+            const createdAt = dateObj.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
 
-            // Susun struktur kartu ucapan HTML
             entryDiv.innerHTML = `
                 <div class="entry-header">
-                    <span class="entry-name">👤 ${escapeHTML(entry.name)}</span>
-                    <span class="entry-date">📅 ${createdAt}</span>
+                    <span class="entry-name">To: ${escapeHTML(entry.name)}</span>
+                    <span class="entry-date">${createdAt}</span>
                 </div>
-                <p class="entry-message">${escapeHTML(entry.message)}</p>
+                <p class="entry-message">"${escapeHTML(entry.message)}"</p>
+                ${getSpotifyEmbed(entry.song_url)}
             `;
             
-            // .prepend artinya memasukkan ucapan terbaru di paling atas list dashboard
             entriesContainer.prepend(entryDiv);
         }
 
-        // 2. CARA KODE MENARIK SEMUA DATA BIAR KEPAJANG PAS WEB DIBUKA
         async function loadEntries() {
             try {
-                // Ambil semua baris dari tabel wishbox_entries, urutkan dari yang paling lama ke baru (nanti dibalik pas di-prepend)
                 const { data, error } = await supabase
                     .from('wishbox_entries')
                     .select('*')
                     .order('created_at', { ascending: true });
 
                 if (error) {
-                    console.error(error);
-                    entriesContainer.innerHTML = '<p style="color: red; text-align: center;">Gagal memuat kumpulan ucapan.</p>';
+                    entriesContainer.innerHTML = '<p style="color: red; text-align: center;">Gagal memuat data.</p>';
                     return;
                 }
 
-                entriesContainer.innerHTML = ''; // Bersihkan tulisan "Memuat dashboard..."
-                
+                entriesContainer.innerHTML = '';
                 if (!data || data.length === 0) {
-                    entriesContainer.innerHTML = '<p id="no-entry-text" style="text-align: center; color: #999;">Belum ada ucapan di dashboard. Jadilah yang pertama!</p>';
+                    entriesContainer.innerHTML = '<p id="no-entry-text" style="text-align: center; color: #aaa;">Belum ada kiriman lagu. Yuk jadi yang pertama!</p>';
                     return;
                 }
 
-                // Masukkan satu-persatu data dari database ke dalam dashboard HTML
                 data.forEach(displayEntry);
-
             } catch (err) {
                 console.error(err);
-                entriesContainer.innerHTML = '<p style="color: red; text-align: center;">Terjadi kesalahan sistem.</p>';
             }
         }
 
-        // 3. LOGIKA PAS TOMBOL "KIRIM" DIKLIK
         wishboxForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const name = nameInput.value.trim();
             const message = messageInput.value.trim();
+            const song_url = songInput.value.trim();
             const submitBtn = document.getElementById('submit-btn');
 
-            if (!name || !message) return;
+            if (!name || !message || !song_url) return;
 
             submitBtn.disabled = true;
-            submitBtn.innerText = 'Mengirim ke Dashboard...';
+            submitBtn.innerText = 'Mengirim Melodi...';
 
-            //
+            const { data, error } = await supabase
+                .from('wishbox_entries')
+                .insert([{ name, message, song_url }])
+                .select(); 
+
+            if (error) {
+                console.error(error.message);
+                alert('Gagal mengirim, coba cek link Spotify-mu.');
+            } else {
+                nameInput.value = '';
+                messageInput.value = '';
+                songInput.value = '';
+                
+                const placeholder = document.getElementById('no-entry-text');
+                if (placeholder) placeholder.remove();
+                
+                if (data && data.length > 0) {
+                    displayEntry(data[0]);
+                }
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Kirim Pesan & Lagu';
+        });
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+        }
+
+        document.addEventListener('DOMContentLoaded', loadEntries);
+    </script>
+</body>
+</html>
