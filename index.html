@@ -4,24 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buku Tamu Digital</title>
-    <link rel="stylesheet" href="style.css">
     <style>
-        .entry {
-            background: white; 
-            padding: 15px; 
-            margin-bottom: 10px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            text-align: left;
-        }
-        .entry-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        .entry-name { font-weight: bold; color: #333; }
-        .entry-date { font-size: 12px; color: #999; }
-        .entry-message { color: #666; font-size: 14px; margin: 0; }
+        /* Desain Container & Tampilan Utama */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 500px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h1 { color: #333; margin-bottom: 25px; font-size: 24px; }
+        form { display: flex; flex-direction: column; gap: 12px; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+        textarea { height: 100px; resize: vertical; }
+        button { background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        hr { border: 0; height: 1px; background: #eee; margin: 30px 0; }
+        h2 { color: #444; font-size: 18px; margin-bottom: 15px; text-align: left; }
+        
+        /* Gaya Tampilan List Ucapan */
+        .entry { background: #ffffff; padding: 15px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #eaeaea; box-shadow: 0 2px 4px rgba(0,0,0,0.02); text-align: left; }
+        .entry-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; }
+        .entry-name { font-weight: bold; color: #007bff; }
+        .entry-date { color: #999; font-size: 12px; }
+        .entry-message { color: #555; font-size: 14px; margin: 0; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -38,7 +40,7 @@
 
         <h2>Ucapan Terbaru</h2>
         <div id="wishbox-entries">
-            <p>Memuat ucapan...</p>
+            <p id="status-text">Memuat ucapan...</p>
         </div>
     </div>
 
@@ -55,12 +57,14 @@
         const messageInput = document.getElementById('message');
         const entriesContainer = document.getElementById('wishbox-entries');
 
+        // MENAMPILKAN UCAPAN DI LAYAR (Fix Aman Anti-Stuck)
         function displayEntry(entry) {
             const entryDiv = document.createElement('div');
             entryDiv.classList.add('entry');
-            entryDiv.setAttribute('data-id', entry.id);
 
-            const createdAt = new Date(entry.created_at).toLocaleString('id-ID', {
+            // Set waktu default kalau created_at dari database belum selesai load
+            const dateObj = entry.created_at ? new Date(entry.created_at) : new Date();
+            const createdAt = dateObj.toLocaleString('id-ID', {
                 dateStyle: 'medium',
                 timeStyle: 'short'
             });
@@ -72,89 +76,86 @@
                 </div>
                 <p class="entry-message">${escapeHTML(entry.message)}</p>
             `;
+            
+            // Langsung tancap ke paling atas list ucapan
             entriesContainer.prepend(entryDiv);
         }
 
+        // MEMUAT ULANG DAFTAR UCAPAN DARI DATABASE
         async function loadEntries() {
-            entriesContainer.innerHTML = '<p>Memuat ucapan...</p>';
-            const { data, error } = await supabase
-                .from('wishbox_entries')
-                .select('*')
-                .order('created_at', { ascending: false });
+            try {
+                const { data, error } = await supabase
+                    .from('wishbox_entries')
+                    .select('*');
 
-            if (error) {
-                console.error('Error loading entries:', error.message);
-                entriesContainer.innerHTML = '<p style="color: red;">Gagal memuat ucapan.</p>';
-                return;
-            }
+                if (error) {
+                    console.error('Gagal mengambil data:', error.message);
+                    entriesContainer.innerHTML = '<p style="color: red;">Gagal memuat ucapan dari database.</p>';
+                    return;
+                }
 
-            entriesContainer.innerHTML = '';
-            if (data.length === 0) {
-                entriesContainer.innerHTML = '<p>Belum ada ucapan. Jadilah yang pertama!</p>';
-            } else {
-                data.reverse().forEach(displayEntry);
+                entriesContainer.innerHTML = ''; // Bersihkan tulisan "Memuat ucapan..."
+                
+                if (!data || data.length === 0) {
+                    entriesContainer.innerHTML = '<p id="no-entry-text">Belum ada ucapan. Jadilah yang pertama!</p>';
+                    return;
+                }
+
+                // Urutkan datanya secara aman lewat JavaScript biasa biar gak crash
+                data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                data.forEach(displayEntry);
+
+            } catch (err) {
+                console.error(err);
+                entriesContainer.innerHTML = '<p style="color: red;">Terjadi kesalahan koneksi sistem.</p>';
             }
         }
 
-        // PERBAIKAN: Penutupan fungsi submit form yang benar
+        // PROSES KIRIM UCAPAN BARU (Fix Otomatis Kepajang!)
         wishboxForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const name = nameInput.value.trim();
             const message = messageInput.value.trim();
             const submitBtn = document.getElementById('submit-btn');
 
-            if (!name || !message) {
-                alert('Nama dan ucapan tidak boleh kosong!');
-                return;
-            }
+            if (!name || !message) return;
 
             submitBtn.disabled = true;
             submitBtn.innerText = 'Mengirim...';
 
+            // Kirim data ke database
             const { error } = await supabase
                 .from('wishbox_entries')
                 .insert([{ name, message }]);
 
             if (error) {
-                console.error('Error submitting entry:', error.message);
-                alert('Gagal mengirim ucapan. Silakan coba lagi.');
+                console.error('Error saat submit:', error.message);
+                alert('Gagal mengirim ucapan, silakan coba lagi.');
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Kirim Ucapan';
             } else {
+                // Bersihkan form
                 nameInput.value = '';
                 messageInput.value = '';
-                // Panggil manual buat mastiin datanya langsung kepajang seketika
-                await loadEntries();
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Kirim Ucapan';
+                
+                // MAKSA langsung tampilin ke layar detik itu juga biar gak stuck!
+                const placeholder = document.getElementById('no-entry-text');
+                if (placeholder) placeholder.remove();
+                
+                displayEntry({ name, message, created_at: new Date().toISOString() });
             }
-
-            submitBtn.disabled = false;
-            submitBtn.innerText = 'Kirim Ucapan';
         });
 
-        function setupRealtime() {
-            supabase
-                .channel('public:wishbox_entries')
-                .on(
-                    'postgres_changes',
-                    { event: 'INSERT', schema: 'public', table: 'wishbox_entries' },
-                    (payload) => {
-                        displayEntry(payload.new);
-                        const placeholder = entriesContainer.querySelector('p');
-                        if (placeholder && placeholder.textContent === 'Belum ada ucapan. Jadilah yang pertama!') {
-                            placeholder.remove();
-                        }
-                    }
-                )
-                .subscribe();
-        }
-
+        // PENGAMAN DARI KARAKTER ANEH HTML
         function escapeHTML(str) {
             if (!str) return '';
             return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadEntries();
-            setupRealtime();
-        });
+        // Jalankan otomatis saat web siap dibuka
+        document.addEventListener('DOMContentLoaded', loadEntries);
     </script>
 </body>
 </html>
