@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send The Song - Clone Version</title>
+    <title>Send The Song - Clone</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0f0c20, #15102a); margin: 0; padding: 20px; color: #fff; min-height: 100vh; }
         .container { max-width: 600px; margin: 30px auto; background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
@@ -11,7 +11,7 @@
         .subtitle { text-align: center; color: #aaa; font-size: 14px; margin-bottom: 30px; }
         
         form { display: flex; flex-direction: column; gap: 15px; }
-        input, textarea { width: 100%; padding: 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 14px; box-sizing: border-box; background: rgba(0, 0, 0, 0.3); color: #fff; transition: all 0.3s; }
+        input, textarea { width: 100%; padding: 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 14px; box-sizing: border-box; background: rgba(0, 0, 0, 0.3); color: #fff; }
         input:focus, textarea:focus { border-color: #1DB954; outline: none; background: rgba(0, 0, 0, 0.5); }
         textarea { height: 100px; resize: vertical; }
         
@@ -23,16 +23,12 @@
         h2 { font-size: 20px; margin-bottom: 20px; color: #1DB954; text-align: left; }
         
         #wishbox-entries { display: flex; flex-direction: column; gap: 20px; }
-        
-        /* Card Tampilan ala SendTheSong */
-        .entry { background: rgba(255, 255, 255, 0.08); padding: 20px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05); text-align: left; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .entry { background: rgba(255, 255, 255, 0.08); padding: 20px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05); text-align: left; }
         .entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .entry-name { font-weight: 700; color: #1DB954; font-size: 16px; }
         .entry-date { color: #888; font-size: 11px; }
         .entry-message { color: #ddd; font-size: 14px; margin: 0 0 15px 0; line-height: 1.5; word-break: break-word; font-style: italic; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 8px; border-left: 3px solid #1DB954; }
-        
-        /* Player Spotify Embed */
-        .spotify-player { margin-top: 10px; border-radius: 12px; overflow: hidden; background: transparent; }
+        .spotify-player { margin-top: 10px; border-radius: 12px; overflow: hidden; }
     </style>
 </head>
 <body>
@@ -41,9 +37,9 @@
         <div class="subtitle">Kirim pesan rahasia beserta lagu favoritmu untuk seseorang</div>
 
         <form id="wishbox-form">
-            <input type="text" id="name" placeholder="Untuk Siapa? (Contoh: Tiya, Adhit, Naufal)" required>
-            <textarea id="message" placeholder="Tulis pesan atau harapan rahasiamu di sini..." required></textarea>
-            <input type="text" id="song-url" placeholder="Masukkan Link Lagu Spotify (Contoh: https://open.spotify.com/track/...)" required>
+            <input type="text" id="name" placeholder="Untuk Siapa?" required>
+            <textarea id="message" placeholder="Tulis pesan rahasiamu di sini..." required></textarea>
+            <input type="text" id="song-url" placeholder="Masukkan Link Lagu Spotify" required>
             <button type="submit" id="submit-btn">Kirim Pesan & Lagu</button>
         </form>
 
@@ -51,7 +47,7 @@
 
         <h2>Kumpulan Lagu & Pesan Terpajang 🎧</h2>
         <div id="wishbox-entries">
-            <p style="text-align: center; color: #aaa;">Memuat dashboard lagu...</p>
+            <p id="status-text" style="text-align: center; color: #aaa;">Memuat dashboard lagu...</p>
         </div>
     </div>
 
@@ -69,7 +65,6 @@
         const songInput = document.getElementById('song-url');
         const entriesContainer = document.getElementById('wishbox-entries');
 
-        // Mengubah link biasa Spotify menjadi format embed player resmi
         function getSpotifyEmbed(url) {
             if (!url) return '';
             const match = url.match(/track\/([a-zA-Z0-9]+)/);
@@ -95,76 +90,17 @@
                 ${getSpotifyEmbed(entry.song_url)}
             `;
             
+            // Masukin ke paling atas list
             entriesContainer.prepend(entryDiv);
         }
 
+        // AMBIL DATA TOTAL TANPA ORDER BY BIAR GAK CRASH
         async function loadEntries() {
             try {
+                // Ambil polosan mentah-mentah biar gak macet
                 const { data, error } = await supabase
                     .from('wishbox_entries')
-                    .select('*')
-                    .order('created_at', { ascending: true });
+                    .select('*');
 
                 if (error) {
-                    entriesContainer.innerHTML = '<p style="color: red; text-align: center;">Gagal memuat data.</p>';
-                    return;
-                }
-
-                entriesContainer.innerHTML = '';
-                if (!data || data.length === 0) {
-                    entriesContainer.innerHTML = '<p id="no-entry-text" style="text-align: center; color: #aaa;">Belum ada kiriman lagu. Yuk jadi yang pertama!</p>';
-                    return;
-                }
-
-                data.forEach(displayEntry);
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        wishboxForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const name = nameInput.value.trim();
-            const message = messageInput.value.trim();
-            const song_url = songInput.value.trim();
-            const submitBtn = document.getElementById('submit-btn');
-
-            if (!name || !message || !song_url) return;
-
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'Mengirim Melodi...';
-
-            const { data, error } = await supabase
-                .from('wishbox_entries')
-                .insert([{ name, message, song_url }])
-                .select(); 
-
-            if (error) {
-                console.error(error.message);
-                alert('Gagal mengirim, coba cek link Spotify-mu.');
-            } else {
-                nameInput.value = '';
-                messageInput.value = '';
-                songInput.value = '';
-                
-                const placeholder = document.getElementById('no-entry-text');
-                if (placeholder) placeholder.remove();
-                
-                if (data && data.length > 0) {
-                    displayEntry(data[0]);
-                }
-            }
-
-            submitBtn.disabled = false;
-            submitBtn.innerText = 'Kirim Pesan & Lagu';
-        });
-
-        function escapeHTML(str) {
-            if (!str) return '';
-            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
-        }
-
-        document.addEventListener('DOMContentLoaded', loadEntries);
-    </script>
-</body>
-</html>
+                    // Kalau eror, tampilin pesannya di layar biar ket
