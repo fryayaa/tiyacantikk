@@ -2,7 +2,10 @@
 const SUPABASE_URL = 'https://gcmhpaopnhnaekvlaxpr.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjbWhwYW9wbmhuYWVrdmxheHByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NDQyMDcsImV4cCI6MjA5NjIyMDIwN30._QS6u43EyOusH372MTuzPigvC2_tWYLS0IqsD28YlS0';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
 
 const wishboxForm = document.getElementById('wishbox-form');
 const nameInput = document.getElementById('name');
@@ -77,11 +80,6 @@ wishboxForm.addEventListener('submit', async (event) => {
     }
 
     alert("Berhasil masuk database!");
-});
-});
-    // Data yang baru di-insert akan otomatis ditambahkan oleh listener real-time,
-    // jadi kita tidak perlu memanggil displayEntry secara manual di sini.
-});
 
 // Setup Realtime Subscription
 function setupRealtime() {
